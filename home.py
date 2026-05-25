@@ -118,6 +118,7 @@ with st.container(border=True):
 with st.container(border=True):
     st.subheader("Dataset")
     st.markdown("To ensure data authenticity and reliability, we sourced our dataset from our fellow University of California, UC Irvine. Their machine learning repository is filled with quality dataset that have been authorized before being published. Our project used the 'Student Performance' dataset, containing information on the academic achievements of two Portugese secondary schools.")
+    st.markdown("The grades of each grading period are based on both Portugese (English equivalent) and Math. Additionally, final grades are based on both G1 and G2, which are the first two grading periods.")
     st.markdown("Below is a brief summary of the dataset, which is categorized into four main subcategories: Demographics, Personal Information, Habits/Lifestyle, and Academic Performance.")
     records, features, target = st.columns(3)
     records.metric("Total Records", "649")
@@ -128,7 +129,7 @@ with st.container(border=True):
 summary = pd.DataFrame({
     'Subcategory': ['Demographics','Personal Information', 'Habits/Lifestyle','Academic Performance'],
     'Features': [2, 10, 18, 3],
-    'Description': ['Characteristics of a student', 'Details about a student\'s background and lifestyle', 'Daily habits and living conditions', 'Grades and performance metrics of a student [Target Variable]'],
+    'Description': ['Characteristics of a student', 'Details about a student\'s background', 'Daily habits and living conditions', 'Grades and performance metrics of a student [Target Variable]'],
     'Dimensions': [
     'Sex, Age', 
     'School, Address, Family size, Parental status, Parents education level, Parents job, Guardian, Education support, Health', 
