@@ -159,12 +159,13 @@ st.markdown("")
 #Pages:
 with st.container(border=True):
     st.subheader("Pages")
-    st.markdown("Our project has been split into five main pages. Each page focuses on a specific aspect of our analysis and modeling process:")
+    st.markdown("Our project has been split into six main pages. Each page focuses on a specific aspect of our analysis and modeling process:")
     with st.expander("Click here to see the different pages of our project"):
         st.markdown("- **📊EDA**: Explores the dataset through visualizations with brief analysis to identify trends.")
         st.markdown("- **📈Regression**: Builds and evaluates various regression models to predict student performance.")
         st.markdown("- **🔢Ridge and Lasso**: Further explores regression techniques by implementing Ridge and Lasso regression to (potentially) enhance model performance and interpretability.")
-        st.markdown(" - **🔍Classification**: Runs Logistic Regression and Random Forest to predict a student's grade.")
+        st.markdown("- **🔍Pass/Fail**: Runs Logistic Regression and Random Forest to predict whether a student passes or fails.")
+        st.markdown("- **🎓GPA Groups**: Runs Logistic Regression and Random Forest to predict which letter grade group (A, B, C, D/F) a student lands in.")
         st.markdown("- **🔮Prediction**: Uses the best performing model to predict a student's grade based on user input.")
 
 # st.markdown("Our project has been split into five main pages. Each page focuses on a specific aspect of our analysis and modeling process:")
@@ -186,13 +187,14 @@ with st.container(border=True):
 # ]
 st.markdown("")
 st.markdown("<h4 style='text-align: center;'>For more information, click on the links below:</h4>", unsafe_allow_html=True)
-cols = st.columns([0.75, 1.25, 1.25, 1.25, 1])
+cols = st.columns(6)
 
 with cols[0]: st.page_link("pages/1EDA.py", label="EDA", icon="📊")
 with cols[1]: st.page_link("pages/2Regression.py", label="Regression", icon="📈")
 with cols[2]: st.page_link("pages/3RidgeAndLasso.py", label="Ridge/Lasso", icon="🔢")
-with cols[3]: st.page_link("pages/4Classification.py", label="Classification", icon="🔍")
-with cols[4]: st.page_link("pages/5Prediction.py", label="Prediction", icon="🔮")
+with cols[3]: st.page_link("pages/4PassFail.py", label="Pass/Fail", icon="🔍")
+with cols[4]: st.page_link("pages/5GPAGroups.py", label="GPA Groups", icon="🎓")
+with cols[5]: st.page_link("pages/6Prediction.py", label="Prediction", icon="🔮")
 
 
 # st.page_link("pages/1EDA.py", label="Data Exploration", icon="📊")
