@@ -84,6 +84,14 @@ from data_loader import load_data, get_features_and_conditions
 st.markdown("<h1 style='text-align: center;'>🔢Ridge and Lasso Regression</h1>", unsafe_allow_html=True)
 st.divider()
 
+# Intro paragraph explaining models and metrics
+st.markdown("""
+For the Ridge and Lasso page we ran 2 regularized regression models to predict the Combined GPA. Both of these are basically Linear Regression but with a penalty added to keep the coefficients from getting too large. The point of the penalty is to stop the model from overfitting when there are a lot of features that might not all matter. Ridge uses an L2 penalty which shrinks the coefficients toward zero but never actually sets any of them to zero, so it keeps every feature in the model just at a smaller weight. Lasso uses an L1 penalty which can shrink coefficients all the way to zero, so it ends up dropping features entirely and acting like a built in feature selector. We used RidgeCV and LassoCV which automatically pick the best regularization strength using 5 fold cross validation.
+
+For the metrics we are looking at the same RMSE, MAE, and R² as the regression page. RMSE is the average prediction error in GPA points with big misses punished harder. MAE is the plain average of how off our predictors are. R² is the percent of GPA variance the model can explain. Lower is better for RMSE and MAE, higher is better for R².
+""")
+st.divider()
+
 #We will load the dataset and separate it into the feature sets and target variables
 df = load_data()
 X_cond1, X_cond2, y_clf, y_reg, y_group = get_features_and_conditions(df)
@@ -116,6 +124,16 @@ def run_ridge_lasso(X_data, y_reg, condition_name):
     st.write(f"RMSE: {root_mean_squared_error(y_test, lasso_preds):.4f}")
     st.write(f"MAE: {mean_absolute_error(y_test, lasso_preds):.4f}")
     st.write(f"R²: {r2_score(y_test, lasso_preds):.4f}")
+
+    # condition specific interpretation paragraph
+    if "Condition 1" in condition_name:
+        st.markdown("""
+For Condition 1 Ridge and Lasso came out almost identical. Ridge had an RMSE of 0.5257, an MAE of 0.4194, and an R² of 0.1811. Lasso had an RMSE of 0.5245, an MAE of 0.4266, and an R² of 0.1848. The R² difference between them is only 0.004 which means L1 and L2 regularization are doing about the same job on this dataset. Both of them beat the plain Linear Regression from the regression page which only got an R² of 0.12, so the penalty is helping. But neither one beats the Random Forest at 0.27. The fact that Ridge and Lasso are this close to each other tells us Lasso did not really need to drop any features to win, which means most of the features are at least pulling a little weight. Predictions are still off by around 0.42 to 0.53 grade points and these models are explaining around 18% of the variance.
+""")
+    else:
+        st.markdown("""
+For Condition 2 Ridge and Lasso stayed close to each other again. Ridge had an RMSE of 0.5475, an MAE of 0.4367, and an R² of 0.1117. Lasso had an RMSE of 0.5471, an MAE of 0.4296, and an R² of 0.1130. Once again the gap between them is basically nothing. What is interesting is that the drop from Condition 1 to Condition 2 was way smaller here than it was for Random Forest. Random Forest lost about half its R² when we cut the academic columns, but Ridge and Lasso only dropped from around 0.18 to around 0.11. So the regularized models are more stable across conditions but they also have a lower ceiling overall. They are explaining about 11% of the variance which is not great, and both of them are still beaten by the Random Forest in Condition 2 at 0.14. The takeaway is that regularization helps these linear models avoid overfitting but it cannot manufacture signal that the features do not have.
+""")
 
 #We will run the Ridge and Lasso models on both feature conditions
 #Condition 1 uses all features except G1/G2, while Condition 2 uses only non-academic features

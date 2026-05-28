@@ -17,8 +17,9 @@ pages = [
     st.Page("pages/1EDA.py", title="EDA", icon="📊"),
     st.Page("pages/2Regression.py", title="Regression", icon="📈"),
     st.Page("pages/3RidgeAndLasso.py", title="Ridge/Lasso", icon="🔢"),
-    st.Page("pages/4Classification.py", title="Classification", icon="🔍"),
-    st.Page("pages/5Prediction.py", title="Prediction", icon="🔮")
+    st.Page("pages/4PassFail.py", title="Pass/Fail", icon="🔍"),
+    st.Page("pages/5GPAGroups.py", title="GPA Groups", icon="🎓"),
+    st.Page("pages/6Prediction.py", title="Prediction", icon="🔮")
 ]
 
 # Run Navigation:

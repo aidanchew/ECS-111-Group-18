@@ -1,11 +1,7 @@
 import streamlit as st
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import RidgeCV, LassoCV
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
-
-from data_loader import load_data, get_features_and_conditions
 
 
 #For consistent styling:
@@ -54,6 +50,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: cover;  
     background-size: 120%;    
 
+            
 /* =========================================================
    4. SIDEBAR STYLING
    ========================================================= */
@@ -81,92 +78,65 @@ input, textarea, div[data-baseweb="select"] * {
 }""", unsafe_allow_html=True)
 
 
-st.markdown("<h1 style='text-align: center;'>📈Regression Analysis</h1>", unsafe_allow_html=True)
+
+from data_loader import load_data, get_features_and_conditions
+
+st.markdown("<h1 style='text-align: center;'>🔢Ridge and Lasso Regression</h1>", unsafe_allow_html=True)
 st.divider()
 
-#Load the cleaned dataset and extract the features and target variables for both regression and classification tasks. 
-#The get_features_and_conditions function will return the appropriate feature sets and target variables based on the conditions defined in the data_loader module.
+# Intro paragraph explaining models and metrics
+st.markdown("""
+For the Ridge and Lasso page we ran 2 regularized regression models to predict the Combined GPA. Both of these are basically Linear Regression but with a penalty added to keep the coefficients from getting too large. The point of the penalty is to stop the model from overfitting when there are a lot of features that might not all matter. Ridge uses an L2 penalty which shrinks the coefficients toward zero but never actually sets any of them to zero, so it keeps every feature in the model just at a smaller weight. Lasso uses an L1 penalty which can shrink coefficients all the way to zero, so it ends up dropping features entirely and acting like a built in feature selector. We used RidgeCV and LassoCV which automatically pick the best regularization strength using 5 fold cross validation.
+
+For the metrics we are looking at the same RMSE, MAE, and R² as the regression page. RMSE is the average prediction error in GPA points with big misses punished harder. MAE is the plain average of how off our predictors are. R² is the percent of GPA variance the model can explain. Lower is better for RMSE and MAE, higher is better for R².
+""")
+st.divider()
+
+#We will load the dataset and separate it into the feature sets and target variables
 df = load_data()
 X_cond1, X_cond2, y_clf, y_reg, y_group = get_features_and_conditions(df)
 
-# Hyperparameter Grids for decision tree and random forest
-# define search space for GridSearchCV. 
-# linear regression has no meaningful hyperparams to tune, so it's not included here. 
-PARAM_GRIDS = {
-    "Decision Tree": {
-        "max_depth": [None, 5, 10, 20],
-        "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4],
-    },
-    "Random Forest": {
-        "n_estimators": [100, 200],
-        "max_depth": [None, 10, 20],
-        "max_features": ["sqrt", "log2"],
-        "min_samples_split": [2, 5],
-    },
-}
-
-# Cached so tuning does not re-run on every interaction
-# underscore prefix on _X_train, _y_train skips Streamlit's hashing for large arrays
-@st.cache_resource
-def fit_models(condition_name, _X_train, _y_train):
-    """Fit all regression models for a given condition, using GridSearchCV
-    for Decision Tree and Random Forest. Returns a dict where each key is
-    the model name and each value has 'model' (the fitted estimator) and
-    'best_params' (the best hyperparameters found, or None for Linear Regression)."""
-    models = {
-        "Linear Regression": LinearRegression(),
-        "Decision Tree": DecisionTreeRegressor(random_state=42),
-        "Random Forest": RandomForestRegressor(random_state=42),
-    }
- 
-    fitted = {}
-    for name, model in models.items(): 
-        if name in PARAM_GRIDS:
-            search = GridSearchCV(
-                model,
-                PARAM_GRIDS[name],
-                cv = 5,
-                # optimizes for RMSE (lead metric)
-                scoring = "neg_mean_squared_error",
-                n_jobs=-1,
-            )
-            search.fit(_X_train, _y_train)
-
-            fitted[name] = {
-                "model": search.best_estimator_,
-                "best_params": search.best_params_,
-            }
-        else:
-            model.fit(_X_train, _y_train)
-            fitted[name] = {"model": model, "best_params": None}
- 
-    return fitted
-
-#This chunk will display the first few rows of the target variables to give us a preview of what we are trying to predict in the regression and classification tasks.
-
-def run_regression(X_data, y_reg, condition_name):
+#We will define a function that runs Ridge and Lasso regression for a given condition
+#This lets us reuse the same code for both feature sets
+def run_ridge_lasso(X_data, y_reg, condition_name):
     st.header(condition_name)
 
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_reg, test_size=0.2, random_state=42)
-    
-    # fit models with tuning (cached)
-    fitted = fit_models(condition_name, X_train, y_train)
-    
-#We will run three different regression models: Linear Regression, Decision Tree Regressor, and Random Forest Regressor. 
-#For each model, we will fit it to the training data, make predictions on the test set, and then evaluate the performance using RMSE, MAE, and R² metrics. The results will be displayed in the Streamlit app for easy comparison.
-    for name, result in fitted.items():
-        model = result["model"]
-        preds = model.predict(X_test)
- 
-        st.subheader(name)
-        st.write(f"RMSE: {root_mean_squared_error(y_test, preds):.4f}")
-        st.write(f"MAE: {mean_absolute_error(y_test, preds):.4f}")
-        st.write(f"R²: {r2_score(y_test, preds):.4f}")
- 
-        if result["best_params"]:
-            st.write("**Best Hyperparameters:**", result["best_params"])
 
-run_regression(X_cond1, y_reg, "Condition 1: All Features Excluding G1/G2")
+#Ridge
+    #We will train a Ridge regression model and use it to predict GPA on the test data
+    ridge_model = RidgeCV(cv=5)
+    ridge_model.fit(X_train, y_train)
+    ridge_preds = ridge_model.predict(X_test)
+
+    st.subheader("Ridge Regression")
+    st.write(f"RMSE: {root_mean_squared_error(y_test, ridge_preds):.4f}")
+    st.write(f"MAE: {mean_absolute_error(y_test, ridge_preds):.4f}")
+    st.write(f"R²: {r2_score(y_test, ridge_preds):.4f}")
+
+# Lasso
+    #We will train a Lasso regression model and use it to predict GPA on the test data
+    lasso_model = LassoCV(cv=5, max_iter=10000)
+    lasso_model.fit(X_train, y_train)
+    lasso_preds = lasso_model.predict(X_test)
+
+    st.subheader("Lasso Regression")
+    st.write(f"RMSE: {root_mean_squared_error(y_test, lasso_preds):.4f}")
+    st.write(f"MAE: {mean_absolute_error(y_test, lasso_preds):.4f}")
+    st.write(f"R²: {r2_score(y_test, lasso_preds):.4f}")
+
+    # condition specific interpretation paragraph
+    if "Condition 1" in condition_name:
+        st.markdown("""
+For Condition 1 Ridge and Lasso came out almost identical. Ridge had an RMSE of 0.5257, an MAE of 0.4194, and an R² of 0.1811. Lasso had an RMSE of 0.5245, an MAE of 0.4266, and an R² of 0.1848. The R² difference between them is only 0.004 which means L1 and L2 regularization are doing about the same job on this dataset. Both of them beat the plain Linear Regression from the regression page which only got an R² of 0.12, so the penalty is helping. But neither one beats the Random Forest at 0.27. The fact that Ridge and Lasso are this close to each other tells us Lasso did not really need to drop any features to win, which means most of the features are at least pulling a little weight. Predictions are still off by around 0.42 to 0.53 grade points and these models are explaining around 18% of the variance.
+""")
+    else:
+        st.markdown("""
+For Condition 2 Ridge and Lasso stayed close to each other again. Ridge had an RMSE of 0.5475, an MAE of 0.4367, and an R² of 0.1117. Lasso had an RMSE of 0.5471, an MAE of 0.4296, and an R² of 0.1130. Once again the gap between them is basically nothing. What is interesting is that the drop from Condition 1 to Condition 2 was way smaller here than it was for Random Forest. Random Forest lost about half its R² when we cut the academic columns, but Ridge and Lasso only dropped from around 0.18 to around 0.11. So the regularized models are more stable across conditions but they also have a lower ceiling overall. They are explaining about 11% of the variance which is not great, and both of them are still beaten by the Random Forest in Condition 2 at 0.14. The takeaway is that regularization helps these linear models avoid overfitting but it cannot manufacture signal that the features do not have.
+""")
+
+#We will run the Ridge and Lasso models on both feature conditions
+#Condition 1 uses all features except G1/G2, while Condition 2 uses only non-academic features
+run_ridge_lasso(X_cond1, y_reg, "Condition 1: All Features Excluding G1/G2")
 st.divider()
-run_regression(X_cond2, y_reg, "Condition 2: Non-Academic Features Only")
+run_ridge_lasso(X_cond2, y_reg, "Condition 2: Non-Academic Features Only")
