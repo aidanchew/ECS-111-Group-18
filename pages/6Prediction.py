@@ -86,6 +86,13 @@ st.markdown("<h1 style='text-align: center;'>🔮Prediction</h1>", unsafe_allow_
 st.markdown("<h3 style = 'text-align: center;'>Enter student characteristics to predict GPA and pass/fail outcome</h3>", unsafe_allow_html=True)
 st.divider()
 
+st.markdown("""
+This is where everything comes together. Fill in a student's information below and the model predicts their GPA, their letter grade, and whether they pass.
+
+We chose Random Forest as our final model because it gave the best results across both the regression and classification tasks. It picks up on nonlinear patterns and feature interactions that a straight-line model misses, and by averaging across many decision trees it avoids the overfitting a single tree runs into. Both Random Forest models here are tuned with GridSearchCV, the same setup used on the regression and classification pages.
+""")
+st.divider()
+
 # load data and get the training columns so user input can be aligned to match
 df = load_data()
 X_cond1, X_cond2, y_clf, y_reg, y_group = get_features_and_conditions(df)
