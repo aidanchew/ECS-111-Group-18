@@ -5,6 +5,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
+from data_loader import load_data, get_features_and_conditions
 
 
 # For consistent styling:
@@ -12,11 +13,17 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
+/*1. GLOBAL FONT*/
+/* We target specific text tags but specifically EXCLUDE "span" tags. 
+   Streamlit uses spans for Material Icons. If you force Poppins on spans, 
+   the icons break and turn into text. */
 p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
     font-family: 'system-ui', sans-serif !important;
     color: white !important;
 }
 
+/*2. UNIFIED TEXTBOX COLORS */
+/* Forces every single input type to be the exact same pure white */
 div[data-baseweb="input"] > div,
 div[data-baseweb="textarea"] > div,
 div[data-baseweb="select"] > div,
@@ -27,10 +34,12 @@ div[data-baseweb="datepicker"] > div {
     box-shadow: none !important;
 }
 
+/* Ensures text typed inside the boxes is black */
 input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
+/*3. BACKGROUND IMAGE*/
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -39,25 +48,30 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: cover;  
     background-size: 120%;    
 
+/*4. SIDEBAR STYLING */
+
+/* Target the sidebar container */
     [data-testid="stSidebar"] {
-        background-color: #2e3b4e;
+        background-color: #2e3b4e; /* Change to your brand color */
         padding: 20px;
     }
     
+    /* Style the text inside the sidebar */
     [data-testid="stSidebar"] div {
         color: white;
         font-family: sans-serif;
     }
     
+    /* Style sidebar links */
     [data-testid="stSidebar"] a {
         color: #ffcc00 !important;
         text-decoration: none;
         font-weight: bold;
     }
+
+            
 }""", unsafe_allow_html=True)
 
-
-from data_loader import load_data, get_features_and_conditions
 
 st.markdown("<h1 style='text-align: center;'>📈 Regression Models</h1>", unsafe_allow_html=True)
 st.divider()
@@ -186,4 +200,5 @@ run_regression(X_cond2, y_reg, "Condition 2: Non-Academic Features Only")
 #Next Page:
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 with col5:
-    st.page_link("pages/3RidgeAndLasso.py", label="Next Page", icon="▶️", use_container_width="content")
+        if st.button("▶️Next Page", type="secondary", use_container_width=True):
+            st.switch_page("pages/3RidgeAndLasso.py")
