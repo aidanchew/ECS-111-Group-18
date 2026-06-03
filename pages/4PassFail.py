@@ -46,12 +46,10 @@ input, textarea, div[data-baseweb="select"] * {
     background-attachment: fixed;
     background-position: center; 
     background-repeat: no-repeat; 
-    background-size: cover;  
-    background-size: 120%;    
+    background-size: cover;     
 
             
 /*4. SIDEBAR STYLING*/
-
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
         background-color: #2e3b4e; /* Change to your brand color */
