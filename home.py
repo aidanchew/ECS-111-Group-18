@@ -18,9 +18,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* =========================================================
-   1. GLOBAL FONT (Fixed to prevent "keyboard_arrow" bug)
-   ========================================================= */
+/*1. GLOBAL FONT*/
 /* We target specific text tags but specifically EXCLUDE "span" tags. 
    Streamlit uses spans for Material Icons. If you force Poppins on spans, 
    the icons break and turn into text. */
@@ -29,9 +27,7 @@ p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
     color: white !important;
 }
 
-/* =========================================================
-   2. UNIFIED TEXTBOX COLORS
-   ========================================================= */
+/*2. UNIFIED TEXTBOX COLORS */
 /* Forces every single input type to be the exact same pure white */
 div[data-baseweb="input"] > div,
 div[data-baseweb="textarea"] > div,
@@ -48,9 +44,7 @@ input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
-/* =========================================================
-   3. BACKGROUND IMAGE
-   ========================================================= */
+/* 3. BACKGROUND IMAGE*/
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -59,9 +53,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: cover;  
     background-size: 120%;    
 
-/* =========================================================
-   4. SIDEBAR STYLING
-   ========================================================= */
+/* 4. SIDEBAR STYLING */
 
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
