@@ -1,6 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -85,26 +85,66 @@ df = load_data()
 X_cond1, X_cond2, y_clf, y_reg, y_group = get_features_and_conditions(df)
 
 
+PARAM_GRIDS = {
+    "Decision Tree": {
+        "max_depth": [None, 5, 10, 20],
+        "min_samples_split": [2, 5, 10],
+        "min_samples_leaf": [1, 2, 4],
+    },
+    "Random Forest": {
+        "n_estimators": [100, 200],
+        "max_depth": [None, 10, 20],
+        "max_features": ["sqrt", "log2"],
+        "min_samples_split": [2, 5],
+    },
+}
+
+
+@st.cache_resource
+def fit_models(condition_name, _X_train, _y_train):
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Decision Tree": DecisionTreeRegressor(random_state=42),
+        "Random Forest": RandomForestRegressor(random_state=42),
+    }
+
+    fitted = {}
+    for name, model in models.items():
+        if name in PARAM_GRIDS:
+            search = GridSearchCV(
+                model,
+                PARAM_GRIDS[name],
+                cv=5,
+                scoring="neg_mean_squared_error",
+                n_jobs=-1,
+            )
+            search.fit(_X_train, _y_train)
+            fitted[name] = {"model": search.best_estimator_, "best_params": search.best_params_}
+        else:
+            model.fit(_X_train, _y_train)
+            fitted[name] = {"model": model, "best_params": None}
+
+    return fitted
+
+
 # Define a function that runs all three regression models for a given condition
 def run_regression(X_data, y_reg, condition_name):
     st.header(condition_name)
 
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_reg, test_size=0.2, random_state=42)
+    fitted = fit_models(condition_name, X_train, y_train)
 
-    models = {
-        "Linear Regression": LinearRegression(),
-        "Decision Tree": DecisionTreeRegressor(random_state=42),
-        "Random Forest": RandomForestRegressor(random_state=42)
-    }
-
-    for name, model in models.items():
-        model.fit(X_train, y_train)
+    for name, result in fitted.items():
+        model = result["model"]
         preds = model.predict(X_test)
 
         st.subheader(name)
         st.write(f"RMSE: {root_mean_squared_error(y_test, preds):.4f}")
         st.write(f"MAE: {mean_absolute_error(y_test, preds):.4f}")
         st.write(f"R²: {r2_score(y_test, preds):.4f}")
+
+        if result["best_params"]:
+            st.write("**Best Hyperparameters:**", result["best_params"])
 
     # Condition specific interpretation paragraph
     if "Condition 1" in condition_name:
