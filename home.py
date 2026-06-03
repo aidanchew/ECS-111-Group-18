@@ -44,7 +44,7 @@ input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
-/* 3. BACKGROUND IMAGE*/
+/*3. BACKGROUND IMAGE*/
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -53,7 +53,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: cover;  
     background-size: 120%;    
 
-/* 4. SIDEBAR STYLING */
+/*4. SIDEBAR STYLING */
 
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
@@ -179,6 +179,8 @@ with st.container(border=True):
 # ]
 st.markdown("")
 st.markdown("<h4 style='text-align: center;'>For more information, click on the links below:</h4>", unsafe_allow_html=True)
+st.markdown("<h6 style='text-align: center;'>To view linearly, start with EDA page!:</h6>", unsafe_allow_html=True)
+st.write("")
 cols = st.columns(6)
 
 with cols[0]: st.page_link("pages/1EDA.py", label="EDA", icon="📊")
