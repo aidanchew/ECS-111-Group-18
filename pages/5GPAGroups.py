@@ -187,7 +187,7 @@ def run_gpa_groups(X_data, y_group, condition_name):
                     
 2) Although with the academic features gone, the **models are basically just guessing C for almost everyone** and hoping for the best.
 
-**Takeaway:** Without grade information, predicting exact GPA letter buckets is too hard for this dataset, especially for anything outside the middle.
+**Takeaway:** Without grade information, predicting exact GPA letter buckets is too hard for this dataset, especially for anything outside B/C.
 
 """)
 
