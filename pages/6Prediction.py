@@ -47,7 +47,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: 120%;    
 
 
-/* 4. SIDEBAR STYLING */
+/*4. SIDEBAR STYLING */
 
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
@@ -300,3 +300,9 @@ if st.button("Predict"):
         st.metric("Letter Grade", letter)
     with col3:
         st.metric("Pass/Fail", "Pass" if predicted_pass_fail == 1 else "Fail")
+
+#Next Page:
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 0.75, 1.25])
+with col5:
+    if st.button("🏡Return Home", type="secondary", use_container_width=True):
+        st.switch_page("home.py")

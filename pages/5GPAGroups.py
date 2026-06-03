@@ -12,7 +12,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* 1. GLOBAL FONT */
+/*1. GLOBAL FONT */
 /* We target specific text tags but specifically EXCLUDE "span" tags. 
    Streamlit uses spans for Material Icons. If you force Poppins on spans, 
    the icons break and turn into text. */
@@ -38,7 +38,7 @@ input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
-/* 3. BACKGROUND IMAGE */
+/*3. BACKGROUND IMAGE */
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -48,7 +48,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: 120%;    
 
             
-/* 4. SIDEBAR STYLING*/
+/*4. SIDEBAR STYLING*/
 
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
@@ -200,4 +200,5 @@ run_gpa_groups(X_cond2, y_group, "Condition 2: Non-Academic Features Only")
 #Next Page:
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 with col5:
-    st.page_link("pages/6Prediction.py", label="Next Page", icon="▶️", use_container_width="content")
+    if st.button("▶️Next Page", type="secondary", use_container_width=True):
+        st.switch_page("pages/6Prediction.py")
