@@ -9,9 +9,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* =========================================================
-   1. GLOBAL FONT (Fixed to prevent "keyboard_arrow" bug)
-   ========================================================= */
+/* 1. GLOBAL FONT */
 /* We target specific text tags but specifically EXCLUDE "span" tags. 
    Streamlit uses spans for Material Icons. If you force Poppins on spans, 
    the icons break and turn into text. */
@@ -20,9 +18,7 @@ p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
     color: white !important;
 }
 
-/* =========================================================
-   2. UNIFIED TEXTBOX COLORS
-   ========================================================= */
+/*2. UNIFIED TEXTBOX COLORS*/
 /* Forces every single input type to be the exact same pure white */
 div[data-baseweb="input"] > div,
 div[data-baseweb="textarea"] > div,
@@ -39,9 +35,7 @@ input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
-/* =========================================================
-   3. BACKGROUND IMAGE
-   ========================================================= */
+/* 3. BACKGROUND IMAGE */
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -51,9 +45,7 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: 120%;    
 
             
-/* =========================================================
-   4. SIDEBAR STYLING
-   ========================================================= */
+/* 4. SIDEBAR STYLING*/
 
 /* Target the sidebar container */
     [data-testid="stSidebar"] {
@@ -85,11 +77,21 @@ st.markdown("<h1 style='text-align: center;'>🔢Ridge and Lasso Regression</h1>
 st.divider()
 
 # Intro paragraph explaining models and metrics
+st.header("Introduction")
 st.markdown("""
-For the Ridge and Lasso page we ran 2 regularized regression models to predict the Combined GPA. Both of these are basically Linear Regression but with a penalty added to keep the coefficients from getting too large. The point of the penalty is to stop the model from overfitting when there are a lot of features that might not all matter. Ridge uses an L2 penalty which shrinks the coefficients toward zero but never actually sets any of them to zero, so it keeps every feature in the model just at a smaller weight. Lasso uses an L1 penalty which can shrink coefficients all the way to zero, so it ends up dropping features entirely and acting like a built in feature selector. We used RidgeCV and LassoCV which automatically pick the best regularization strength using 5 fold cross validation.
+The following page runs **Ridge** and **Lasso** Regression to predict a student’s final GPA. Both methods can be almost seen as modified linear regression, adding a penalty to prevent coefficients from overfitting. 
 
-For the metrics we are looking at the same RMSE, MAE, and R² as the regression page. RMSE is the average prediction error in GPA points with big misses punished harder. MAE is the plain average of how off our predictors are. R² is the percent of GPA variance the model can explain. Lower is better for RMSE and MAE, higher is better for R².
+We will use RidgeCV and LassoCV to pick the best regularization strength, using 5-fold cross-validation. The models will be evaluated using **RMSE**, **MAE**, and **R²**, similar to the previous Linear Regression Page. 
 """)
+
+with st.expander("Click here to see the full detailed introduction:"):
+    st.markdown("""
+For the Ridge and Lasso page we ran 2 regularized regression models to predict the Combined GPA. Both of these are basically Linear Regression but with a penalty added to keep the coefficients from getting too large. The point of the penalty is to stop the model from overfitting when there are a lot of features that might not all matter. Ridge uses an L2 penalty which shrinks the coefficients toward zero but never actually sets any of them to zero, so it keeps every feature in the model just at a smaller weight. Lasso uses an L1 penalty which can shrink coefficients all the way to zero, so it ends up dropping features entirely and acting like a built in feature selector. We used RidgeCV and LassoCV which automatically pick the best regularization strength using 5 fold cross validation.
+                
+For the metrics we are looking at the same RMSE, MAE, and R² as the regression page. RMSE is the average prediction error in GPA points with big misses punished harder. MAE is the plain average of how off our predictors are. R² is the percent of GPA variance the model can explain. Lower is better for RMSE and MAE, higher is better for R².
+  
+                """)
+
 st.divider()
 
 #We will load the dataset and separate it into the feature sets and target variables
@@ -127,12 +129,34 @@ def run_ridge_lasso(X_data, y_reg, condition_name):
 
     # condition specific interpretation paragraph
     if "Condition 1" in condition_name:
+        st.write("")
+        st.subheader("📋Analysis")
         st.markdown("""
-For Condition 1 Ridge and Lasso came out almost identical. Ridge had an RMSE of 0.5257, an MAE of 0.4194, and an R² of 0.1811. Lasso had an RMSE of 0.5245, an MAE of 0.4266, and an R² of 0.1848. The R² difference between them is only 0.004 which means L1 and L2 regularization are doing about the same job on this dataset. Both of them beat the plain Linear Regression from the regression page which only got an R² of 0.12, so the penalty is helping. But neither one beats the Random Forest at 0.27. The fact that Ridge and Lasso are this close to each other tells us Lasso did not really need to drop any features to win, which means most of the features are at least pulling a little weight. Predictions are still off by around 0.42 to 0.53 grade points and these models are explaining around 18% of the variance.
+**Key Insight**: Ridge and Lasso came out almost identical.
+
+1) Ridge and Lasso had **similar RMSE/MAE and R².**
+
+2) Both beat regular Linear Regression (OLS: R²= 0.12) 
+
+3) The fact that Ridge and Lasso are this close to each other tells us Lasso did not need to drop any features to win, which means **most of the features are at least pulling a little weight.**
+
+**Takeaway:** Predictions are still off by around 0.42 to 0.53 grade points and these models are explaining around 18% of the variance.
+
 """)
     else:
+        st.write("")
+        st.subheader("📋Analysis")
         st.markdown("""
-For Condition 2 Ridge and Lasso stayed close to each other again. Ridge had an RMSE of 0.5475, an MAE of 0.4367, and an R² of 0.1117. Lasso had an RMSE of 0.5471, an MAE of 0.4296, and an R² of 0.1130. Once again the gap between them is basically nothing. What is interesting is that the drop from Condition 1 to Condition 2 was way smaller here than it was for Random Forest. Random Forest lost about half its R² when we cut the academic columns, but Ridge and Lasso only dropped from around 0.18 to around 0.11. So the regularized models are more stable across conditions but they also have a lower ceiling overall. They are explaining about 11% of the variance which is not great, and both of them are still beaten by the Random Forest in Condition 2 at 0.14. The takeaway is that regularization helps these linear models avoid overfitting but it cannot manufacture signal that the features do not have.
+**Insight:** Ridge and Lasso stayed close to each other again
+
+1) The drop from Condition 1 to Condition 2 was way smaller here than it was for Random Forest.
+
+2) The regularized models are more stable across conditions, but they also have a lower ceiling overall. 
+
+3) Regularized Models explain about **11%  of the variance**, which is not great, and both of them are still beaten by the Random Forest in Condition 2 at 0.14.
+
+**Takeaway:** Regularization helps these linear models avoid overfitting, but it cannot manufacture a signal that the features do not have. 
+
 """)
 
 #We will run the Ridge and Lasso models on both feature conditions
@@ -140,3 +164,8 @@ For Condition 2 Ridge and Lasso stayed close to each other again. Ridge had an R
 run_ridge_lasso(X_cond1, y_reg, "Condition 1: All Features Excluding G1/G2")
 st.divider()
 run_ridge_lasso(X_cond2, y_reg, "Condition 2: Non-Academic Features Only")
+
+#Next Page:
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+with col5:
+    st.page_link("pages/4PassFail.py", label="Next Page", icon="▶️", use_container_width="content")

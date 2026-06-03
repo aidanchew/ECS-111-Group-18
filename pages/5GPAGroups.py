@@ -12,25 +12,17 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-p, h1, h2, h3, h4, h5, h6, label, .stMarkdown, pre, code {
+/* 1. GLOBAL FONT */
+/* We target specific text tags but specifically EXCLUDE "span" tags. 
+   Streamlit uses spans for Material Icons. If you force Poppins on spans, 
+   the icons break and turn into text. */
+p, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
     font-family: 'system-ui', sans-serif !important;
     color: white !important;
 }
 
-/* Force Streamlit text elements to white (classification report fix) */
-[data-testid="stText"],
-[data-testid="stText"] pre,
-[data-testid="stCodeBlock"],
-[data-testid="stCodeBlock"] pre,
-[data-testid="stCodeBlock"] code,
-.stText,
-.stCode,
-div[data-testid="stText"] *,
-div[data-testid="stCodeBlock"] * {
-    color: white !important;
-    background-color: transparent !important;
-}
-
+/*2. UNIFIED TEXTBOX COLORS*/
+/* Forces every single input type to be the exact same pure white */
 div[data-baseweb="input"] > div,
 div[data-baseweb="textarea"] > div,
 div[data-baseweb="select"] > div,
@@ -41,10 +33,12 @@ div[data-baseweb="datepicker"] > div {
     box-shadow: none !important;
 }
 
+/* Ensures text typed inside the boxes is black */
 input, textarea, div[data-baseweb="select"] * {
     color: black !important;
 }
 
+/* 3. BACKGROUND IMAGE */
 [data-testid="stAppViewContainer"] {
     background-image: url('https://static.vecteezy.com/system/resources/previews/012/086/236/non_2x/back-to-school-doodles-in-chalkboard-background-free-vector.jpg');
     background-attachment: fixed;
@@ -53,21 +47,29 @@ input, textarea, div[data-baseweb="select"] * {
     background-size: cover;  
     background-size: 120%;    
 
+            
+/* 4. SIDEBAR STYLING*/
+
+/* Target the sidebar container */
     [data-testid="stSidebar"] {
-        background-color: #2e3b4e;
+        background-color: #2e3b4e; /* Change to your brand color */
         padding: 20px;
     }
     
+    /* Style the text inside the sidebar */
     [data-testid="stSidebar"] div {
         color: white;
         font-family: sans-serif;
     }
     
+    /* Style sidebar links */
     [data-testid="stSidebar"] a {
         color: #ffcc00 !important;
         text-decoration: none;
         font-weight: bold;
     }
+
+            
 }""", unsafe_allow_html=True)
 
 
@@ -76,11 +78,19 @@ st.markdown("<h1 style='text-align: center;'>🎓GPA Letter Group Classification
 st.divider()
 
 # Intro paragraph
+st.header("Introduction")
 st.markdown("""
+Once again, we will run **Logistic Regression** and **Random Forest**, but the task will be multi-classed rather than binary. The model has to decide between **4 different classes** (A, B, C, D/F) instead of just pass or fail.
+
+For the metrics we are looking at, **Accuracy**, **weighted F1 Score**, and **Cross-Val F1**. We will use **weighted F1 Score** due to GPA groups being unbalanced (demonstrated in EDA). We also display the full classification report which breaks down precision, recall, and F1 per class so we can see exactly where the model is winning and losing.
+""")
+
+with st.expander("Click here to see the full detailed introduction:"):
+    st.markdown("""
 For the GPA Letter Group page we ran the same two classification models (Logistic Regression and Random Forest) but this time the task is multi-class instead of binary. The model has to decide between 4 different classes (A, B, C, D/F) instead of just pass or fail. For Logistic Regression this means the sigmoid function gets swapped out for a softmax that gives probabilities across all 4 classes. The Random Forest works the same way as before, just with more class options to vote on. We tuned the same hyperparameters as the Pass/Fail page.
 
 For the metrics we are looking at Accuracy, weighted F1 Score, and Cross-Val F1. Weighted F1 is different from regular F1 because it calculates F1 for each individual class and then averages them based on how many students are in each class. We need this because the EDA showed our GPA Groups are severely imbalanced (C is 58% of the data and A is only 2%) so a regular F1 would not give us an honest read. We also display the full classification report which breaks down precision, recall, and F1 per class so we can see exactly where the model is winning and losing. We are expecting the A and D/F classes to come out the worst since those are the smallest groups.
-""")
+                """)
 st.divider()
 
 # Load data
@@ -154,12 +164,31 @@ def run_gpa_groups(X_data, y_group, condition_name):
 
     # Condition specific interpretation
     if "Condition 1" in condition_name:
+        st.write("")
+        st.subheader("📋Analysis")
         st.markdown("""
-For Condition 1 Random Forest came out slightly ahead with an Accuracy of 64.94% compared to Logistic Regression at 59.74%. The weighted F1 scores were closer with Random Forest at 0.6056 and Logistic Regression at 0.5955. Random Forest also had the better Cross-Val F1 at 0.6277. Looking at the classification report tells the real story though. Random Forest hit 86% recall on the C class and 52% on B, but got a flat 0% for D/F. Logistic Regression managed 25% recall on D/F which is at least something. Neither model could predict any A students at all because there were 0 in the test set after the split (with only 6 A students in the whole dataset, the train/test split landed all of them in training). This is exactly what the EDA was warning us about, the imbalance is so severe that the smaller classes basically get ignored.
+**Insight:** Random Forest seemed to perform slightly better.
+
+1) Random Forest had the **higher accuracy**, **weighted F1 scores**, and **Cross-Val F1**. 
+                    
+2) However, Random Forest hit 86% recall on the C class and 52% on B, but got a flat **0% for D/F**. No recall recorded for failing grades.
+                    
+3) **Neither model could predict any A students** at all because there were 0 in the test set after the split
+
+**Takeaway:** This is exactly what the EDA was warning us about; the imbalance is so severe that the smaller classes basically get ignored.
+
 """)
     else:
+        st.write("")
+        st.subheader("📋Analysis")
         st.markdown("""
-For Condition 2 the scores dropped across the board. Logistic Regression actually did a little better than Random Forest this time with 61.04% accuracy compared to 59.74%, but the weighted F1 scores were both lower at around 0.55 to 0.59. Logistic Regression managed to keep 12% recall on the D/F class which is something, while Random Forest dropped to 0% for D/F again. The C class is still the only one being predicted with any real success at around 79-81% recall for both models. With the academic features gone, the models are basically just guessing C for almost everyone and hoping for the best. The accuracy hovering around 60% looks decent until you remember that just guessing C every time would give us around 58% accuracy by itself. So the models are only barely beating the dumbest possible strategy. The honest takeaway is that without grade information, predicting exact GPA letter buckets is too hard for this dataset, especially for anything outside the middle.
+**Insight:** Scores across both models dropped across the board. 
+1) Logistic Regression was able to keep 12% of recall on the D/F grades. 
+                    
+2) Although with the academic features gone, the **models are basically just guessing C for almost everyone** and hoping for the best.
+
+**Takeaway:** Without grade information, predicting exact GPA letter buckets is too hard for this dataset, especially for anything outside the middle.
+
 """)
 
 
@@ -167,3 +196,8 @@ For Condition 2 the scores dropped across the board. Logistic Regression actuall
 run_gpa_groups(X_cond1, y_group, "Condition 1: All Features Excluding G1/G2")
 st.divider()
 run_gpa_groups(X_cond2, y_group, "Condition 2: Non-Academic Features Only")
+
+#Next Page:
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+with col5:
+    st.page_link("pages/6Prediction.py", label="Next Page", icon="▶️", use_container_width="content")
